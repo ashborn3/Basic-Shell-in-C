@@ -90,6 +90,12 @@ void execute_command(char *command) {
     }
 }
 
+void execute_cd(char *path) {
+    if (chdir(path) != 0) {
+        perror("cd");
+    }
+}
+
 int main() {
     char command[MAX_COMMAND_LENGTH];
 
