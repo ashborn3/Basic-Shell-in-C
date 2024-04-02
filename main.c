@@ -20,7 +20,21 @@ void execute_command(char *command) {
     }
     arguments[argument_count] = NULL;
 
-    //Add Forking
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+        // Child process
+        execvp(arguments[0], arguments);
+        perror("exec");
+        exit(EXIT_FAILURE);
+    } else {
+        // Parent process
+        int status;
+        waitpid(pid, &status, 0);
+    }
 }
 
 int main() {
