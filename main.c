@@ -8,6 +8,21 @@
 #define MAX_COMMAND_LENGTH 100
 #define MAX_ARGUMENTS 10
 
+void execute_command(char *command) {
+    char *arguments[MAX_ARGUMENTS];
+    int argument_count = 0;
+
+    // Tokenize the command into arguments
+    char *token = strtok(command, " ");
+    while (token != NULL && argument_count < MAX_ARGUMENTS) {
+        arguments[argument_count++] = token;
+        token = strtok(NULL, " ");
+    }
+    arguments[argument_count] = NULL;
+
+    //Add Forking
+}
+
 int main() {
     char command[MAX_COMMAND_LENGTH];
 
