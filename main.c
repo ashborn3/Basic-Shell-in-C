@@ -20,6 +20,41 @@ void execute_command(char *command) {
     }
     arguments[argument_count] = NULL;
 
+
+    // Check for input/output redirection
+    char *input_file = NULL;
+    char *output_file = NULL;
+    int input_fd = STDIN_FILENO;
+    int output_fd = STDOUT_FILENO;
+
+    for (int i = 0; i < argument_count; i++) {
+        if (strcmp(arguments[i], "<") == 0) {
+            input_file = arguments[i + 1];
+            arguments[i] = NULL;
+            break;
+        } else if (strcmp(arguments[i], ">") == 0) {
+            output_file = arguments[i + 1];
+            arguments[i] = NULL;
+            break;
+        }
+    }
+
+    if (input_file != NULL) {
+        input_fd = open(input_file, O_RDONLY);
+        if (input_fd == -1) {
+            perror("open");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (output_file != NULL) {
+        output_fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (output_fd == -1) {
+            perror("open");
+            exit(EXIT_FAILURE);
+        }
+    }
+
     pid_t pid = fork();
 
     if (pid == -1) {
@@ -27,11 +62,29 @@ void execute_command(char *command) {
         exit(EXIT_FAILURE);
     } else if (pid == 0) {
         // Child process
+        if (input_fd != STDIN_FILENO) {
+            dup2(input_fd, STDIN_FILENO);
+            close(input_fd);
+        }
+
+        if (output_fd != STDOUT_FILENO) {
+            dup2(output_fd, STDOUT_FILENO);
+            close(output_fd);
+        }
+
         execvp(arguments[0], arguments);
         perror("exec");
         exit(EXIT_FAILURE);
     } else {
         // Parent process
+        if (input_fd != STDIN_FILENO) {
+            close(input_fd);
+        }
+
+        if (output_fd != STDOUT_FILENO) {
+            close(output_fd);
+        }
+
         int status;
         waitpid(pid, &status, 0);
     }
