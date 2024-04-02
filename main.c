@@ -9,6 +9,24 @@
 #define MAX_ARGUMENTS 10
 
 int main() {
-    printf("LET US SHELL!\n");
+    char command[MAX_COMMAND_LENGTH];
+
+    while (1) {
+        printf("Nitin's Shell ~> ");
+        fgets(command, MAX_COMMAND_LENGTH, stdin);
+
+        // Remove trailing newline character
+        command[strcspn(command, "\n")] = '\0';
+
+        if (strcmp(command, "exit") == 0) {
+            break;
+        } else if (strncmp(command, "cd ", 3) == 0) {
+            char *path = command + 3;
+            execute_cd(path);
+        } else {
+            execute_command(command);
+        }
+    }
+
     return 0;
 }
